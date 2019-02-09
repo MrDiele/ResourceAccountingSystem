@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="Хранилище HomeDataModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Counters">
+          <Key>
+            <PropertyRef Name="IdCounter" />
+          </Key>
+          <Property Name="IdCounter" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SerialNumber" Type="int" Nullable="false" />
+          <Property Name="Indication" Type="decimal" Precision="18" Scale="0" Nullable="false" />
+        </EntityType>
+        <!--Ошибки, обнаруженные при создании:
+предупреждение 6002: В таблице или представлении "C:\USERS\DIELE\DESKTOP\TEST\RESOURCEACCOUNTINGSYSTEM\RESOURCEACCOUNTINGSYSTEM\APP_DATA\HOMEDATA.MDF.dt.HouseCounter" не определен первичный ключ. Ключ был выведен, а определение таблицы или представления было создано в режиме только для чтения.-->
+        <EntityType Name="HouseCounter">
+          <Key>
+            <PropertyRef Name="IdHouse" />
+            <PropertyRef Name="IdCounter" />
+          </Key>
+          <Property Name="IdHouse" Type="int" Nullable="false" />
+          <Property Name="IdCounter" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Houses">
+          <Key>
+            <PropertyRef Name="IdHouse" />
+          </Key>
+          <Property Name="IdHouse" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Address" Type="varchar" MaxLength="100" Nullable="false" />
+        </EntityType>
+        <!--Ошибки, обнаруженные при создании:
+предупреждение 6002: В таблице или представлении "C:\USERS\DIELE\DESKTOP\TEST\RESOURCEACCOUNTINGSYSTEM\RESOURCEACCOUNTINGSYSTEM\APP_DATA\HOMEDATA.MDF.dt.HouseCounterView" не определен первичный ключ. Ключ был выведен, а определение таблицы или представления было создано в режиме только для чтения.-->
+        <EntityType Name="HouseCounterView">
+          <Key>
+            <PropertyRef Name="IdHouse" />
+            <PropertyRef Name="Address" />
+          </Key>
+          <Property Name="IdHouse" Type="int" Nullable="false" />
+          <Property Name="Address" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="SerialNumber" Type="int" />
+          <Property Name="Indication" Type="decimal" Precision="18" Scale="0" />
+        </EntityType>
+        <Association Name="FK__HouseCoun__IdCou__30F848ED">
+          <End Role="Counters" Type="Self.Counters" Multiplicity="1" />
+          <End Role="HouseCounter" Type="Self.HouseCounter" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Counters">
+              <PropertyRef Name="IdCounter" />
+            </Principal>
+            <Dependent Role="HouseCounter">
+              <PropertyRef Name="IdCounter" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__HouseCoun__IdHou__300424B4">
+          <End Role="Houses" Type="Self.Houses" Multiplicity="1" />
+          <End Role="HouseCounter" Type="Self.HouseCounter" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Houses">
+              <PropertyRef Name="IdHouse" />
+            </Principal>
+            <Dependent Role="HouseCounter">
+              <PropertyRef Name="IdHouse" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Function Name="AddCounterOrInputIndicationOfIdHouse" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="IdHouse" Type="int" Mode="In" />
+          <Parameter Name="SerialNumber" Type="int" Mode="In" />
+          <Parameter Name="Indication" Type="decimal" Mode="In" />
+        </Function>
+        <Function Name="DeleteHouseWithCounter" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="IdHouse" Type="int" Mode="In" />
+        </Function>
+        <Function Name="GetId_MaxConsumerHouse" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" ReturnType="int" />
+        <Function Name="GetId_MinConsumerHouse" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" ReturnType="int" />
+        <Function Name="InputIndicationByIdHouse" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="IdHouse" Type="int" Mode="In" />
+          <Parameter Name="Indication" Type="decimal" Mode="In" />
+        </Function>
+        <EntityContainer Name="Хранилище HomeDataModelContainer">
+          <EntitySet Name="Counters" EntityType="Self.Counters" Schema="dt" store:Type="Tables" />
+          <EntitySet Name="Houses" EntityType="Self.Houses" Schema="dt" store:Type="Tables" />
+          <EntitySet Name="HouseCounter" EntityType="Self.HouseCounter" store:Type="Tables" store:Schema="dt">
+            <DefiningQuery>SELECT 
+    [HouseCounter].[IdHouse] AS [IdHouse], 
+    [HouseCounter].[IdCounter] AS [IdCounter]
+    FROM [dt].[HouseCounter] AS [HouseCounter]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="HouseCounterView" EntityType="Self.HouseCounterView" store:Type="Views" store:Schema="dt">
+            <DefiningQuery>SELECT 
+    [HouseCounterView].[IdHouse] AS [IdHouse], 
+    [HouseCounterView].[Address] AS [Address], 
+    [HouseCounterView].[SerialNumber] AS [SerialNumber], 
+    [HouseCounterView].[Indication] AS [Indication]
+    FROM [dt].[HouseCounterView] AS [HouseCounterView]</DefiningQuery>
+          </EntitySet>
+          <AssociationSet Name="FK__HouseCoun__IdCou__30F848ED" Association="Self.FK__HouseCoun__IdCou__30F848ED">
+            <End Role="Counters" EntitySet="Counters" />
+            <End Role="HouseCounter" EntitySet="HouseCounter" />
+          </AssociationSet>
+          <AssociationSet Name="FK__HouseCoun__IdHou__300424B4" Association="Self.FK__HouseCoun__IdHou__300424B4">
+            <End Role="Houses" EntitySet="Houses" />
+            <End Role="HouseCounter" EntitySet="HouseCounter" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="HomeDataModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Counters">
+          <Key>
+            <PropertyRef Name="IdCounter" />
+          </Key>
+          <Property Name="IdCounter" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SerialNumber" Type="Int32" Nullable="false" />
+          <Property Name="Indication" Type="Decimal" Precision="18" Scale="0" Nullable="false" />
+          <NavigationProperty Name="Houses" Relationship="Self.HouseCounter" FromRole="Counters" ToRole="Houses" />
+        </EntityType>
+        <EntityType Name="Houses">
+          <Key>
+            <PropertyRef Name="IdHouse" />
+          </Key>
+          <Property Name="IdHouse" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Address" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Counters" Relationship="Self.HouseCounter" FromRole="Houses" ToRole="Counters" />
+        </EntityType>
+        <EntityType Name="HouseCounterView">
+          <Key>
+            <PropertyRef Name="IdHouse" />
+            <PropertyRef Name="Address" />
+          </Key>
+          <Property Name="IdHouse" Type="Int32" Nullable="false" />
+          <Property Name="Address" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="SerialNumber" Type="Int32" />
+          <Property Name="Indication" Type="Decimal" Precision="18" Scale="0" />
+        </EntityType>
+        <Association Name="HouseCounter">
+          <End Role="Counters" Type="Self.Counters" Multiplicity="*" />
+          <End Role="Houses" Type="Self.Houses" Multiplicity="*" />
+        </Association>
+        <EntityContainer Name="HomeDataEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Counters" EntityType="Self.Counters" />
+          <EntitySet Name="Houses" EntityType="Self.Houses" />
+          <EntitySet Name="HouseCounterView" EntityType="Self.HouseCounterView" />
+          <AssociationSet Name="HouseCounter" Association="Self.HouseCounter">
+            <End Role="Counters" EntitySet="Counters" />
+            <End Role="Houses" EntitySet="Houses" />
+          </AssociationSet>
+          <FunctionImport Name="AddCounter">
+            <Parameter Name="IdHouse" Mode="In" Type="Int32" />
+            <Parameter Name="SerialNumber" Mode="In" Type="Int32" />
+            <Parameter Name="Indication" Mode="In" Type="Decimal" />
+          </FunctionImport>
+          <FunctionImport Name="AddCounterOrInputIndicationOfIdHouse">
+            <Parameter Name="IdHouse" Mode="In" Type="Int32" />
+            <Parameter Name="SerialNumber" Mode="In" Type="Int32" />
+            <Parameter Name="Indication" Mode="In" Type="Decimal" />
+          </FunctionImport>
+          <FunctionImport Name="DeleteHouseWithCounter">
+          <Parameter Name="IdHouse" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="InputIndicationByIdHouse">
+            <Parameter Name="IdHouse" Mode="In" Type="Int32" />
+            <Parameter Name="Indication" Mode="In" Type="Decimal" />
+          </FunctionImport>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="Хранилище HomeDataModelContainer" CdmEntityContainer="HomeDataEntities">
+          <EntitySetMapping Name="Counters">
+            <EntityTypeMapping TypeName="HomeDataModel.Counters">
+              <MappingFragment StoreEntitySet="Counters">
+                <ScalarProperty Name="IdCounter" ColumnName="IdCounter" />
+                <ScalarProperty Name="SerialNumber" ColumnName="SerialNumber" />
+                <ScalarProperty Name="Indication" ColumnName="Indication" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Houses">
+            <EntityTypeMapping TypeName="HomeDataModel.Houses">
+              <MappingFragment StoreEntitySet="Houses">
+                <ScalarProperty Name="IdHouse" ColumnName="IdHouse" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="HouseCounterView">
+            <EntityTypeMapping TypeName="HomeDataModel.HouseCounterView">
+              <MappingFragment StoreEntitySet="HouseCounterView">
+                <ScalarProperty Name="IdHouse" ColumnName="IdHouse" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="SerialNumber" ColumnName="SerialNumber" />
+                <ScalarProperty Name="Indication" ColumnName="Indication" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="HouseCounter" TypeName="HomeDataModel.HouseCounter" StoreEntitySet="HouseCounter">
+            <EndProperty Name="Counters">
+              <ScalarProperty Name="IdCounter" ColumnName="IdCounter" />
+            </EndProperty>
+            <EndProperty Name="Houses">
+              <ScalarProperty Name="IdHouse" ColumnName="IdHouse" />
+            </EndProperty>
+          </AssociationSetMapping>
+          <FunctionImportMapping FunctionImportName="AddCounterOrInputIndicationOfIdHouse" FunctionName="Хранилище HomeDataModel.AddCounterOrInputIndicationOfIdHouse" />
+          <FunctionImportMapping FunctionImportName="DeleteHouseWithCounter" FunctionName="Хранилище HomeDataModel.DeleteHouseWithCounter" />
+          <FunctionImportMapping FunctionImportName="InputIndicationByIdHouse" FunctionName="Хранилище HomeDataModel.InputIndicationByIdHouse" />
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Нет" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

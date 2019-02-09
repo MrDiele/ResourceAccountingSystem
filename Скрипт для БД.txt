@@ -1,0 +1,163 @@
+/*-------------------------------------------------------Добавляем схему-----------------------------------------------------------*/
+CREATE SCHEMA dt 
+/*---------------------------------------------------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------Создаём таблицы-----------------------------------------------------------*/
+CREATE TABLE dt.Houses(
+IdHouse INTEGER PRIMARY KEY IDENTITY(1,1),
+Address VARCHAR(100) NOT NULL UNIQUE
+)
+
+CREATE TABLE dt.Counters(
+IdCounter INTEGER PRIMARY KEY IDENTITY(1,1),
+SerialNumber INTEGER NOT NULL UNIQUE, 
+Indication DECIMAL NOT NULL
+)
+
+CREATE TABLE dt.HouseCounter(
+IdHouse INTEGER NOT NULL,
+IdCounter INTEGER NOT NULL,								
+FOREIGN KEY(IdHouse) REFERENCES dt.Houses(IdHouse),
+FOREIGN KEY(IdCounter) REFERENCES dt.Counters(IdCounter)
+) 
+/*---------------------------------------------------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------Создаём представление-----------------------------------------------------*/
+CREATE VIEW dt.HouseCounterView
+AS
+SELECT h.IdHouse, h.Address, c.SerialNumber, c.Indication
+FROM dt.HouseCounter hc
+	INNER JOIN dt.Counters c ON (c.IdCounter = hc.IdCounter)
+	RIGHT JOIN dt.Houses h ON (h.IdHouse = hc.IdHouse)
+/*---------------------------------------------------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------Заполняем таблицы данными-------------------------------------------------*/
+INSERT INTO dt.Houses(Address)
+VALUES ('Ленина 8')
+INSERT INTO dt.Houses(Address)
+VALUES ('Курчатова 12')
+INSERT INTO dt.Houses(Address)
+VALUES ('Менделеева 3')
+
+INSERT INTO dt.Counters(SerialNumber, Indication)
+VALUES (123456, 100)
+INSERT INTO dt.Counters(SerialNumber, Indication)
+VALUES (654321, 10)
+
+INSERT INTO dt.HouseCounter(IdHouse, IdCounter)
+VALUES (1, 1)
+INSERT INTO dt.HouseCounter(IdHouse, IdCounter)
+VALUES (3, 2)
+/*---------------------------------------------------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------Создаём хранимые процедуры------------------------------------------------*/
+CREATE PROCEDURE [dbo].[AddCounterOrInputIndicationOfIdHouse]
+	@IdHouse INT,
+	@SerialNumber INT,
+	@Indication DECIMAL
+AS
+BEGIN
+
+/*
+  	DECLARE @IdHouse INT; SET @IdHouse = 5
+	DECLARE @SerialNumber INT; SET @SerialNumber = '123456'
+	DECLARE @Indication DECIMAL; SET @Indication = '10'
+*/		   		   
+		IF object_id(N'tempdb..#tHouseCounter',N'U') is not null
+		DROP TABLE #tHouseCounter
+		CREATE TABLE #tHouseCounter ( IdHouse			INT
+									  ,Indication		DECIMAL
+									)
+		INSERT #tHouseCounter ( IdHouse ,Indication )
+			SELECT hs.IdHouse, c.Indication
+			FROM dt.Counters AS c
+			INNER JOIN dt.HouseCounter hs ON (hs.IdCounter = c.IdCounter)
+			WHERE SerialNumber=@SerialNumber
+				   					 
+
+	IF (SELECT COUNT(1) FROM dt.Counters WHERE SerialNumber=@SerialNumber)>0
+	BEGIN		
+		IF (SELECT hc.IdHouse
+			FROM #tHouseCounter AS hc) = @IdHouse				
+		BEGIN		
+			IF (SELECT hc.Indication
+				FROM #tHouseCounter AS hc) > @Indication				
+			BEGIN		
+				UPDATE dt.Counters
+				SET Indication = @Indication
+				WHERE SerialNumber=@SerialNumber
+			END	 
+		END	 		
+	END
+	ELSE
+	BEGIN
+		INSERT dt.Counters(SerialNumber, Indication)
+		VALUES(@SerialNumber, @Indication)
+
+		DECLARE @id INT
+		SET @id = SCOPE_IDENTITY()
+  
+		INSERT dt.HouseCounter (IdHouse, IdCounter)
+		VALUES(@IdHouse, @id)
+	END	  
+END
+
+CREATE PROCEDURE [dbo].[DeleteHouseWithCounter]
+	@IdHouse INT
+AS
+BEGIN
+/*
+  	DECLARE @IdHouse INT; SET @IdHouse = 5
+*/
+   	DECLARE @IdCounter int;  
+    SELECT @IdCounter = hc.IdCounter
+	FROM dt.HouseCounter AS hc
+	WHERE hc.IdHouse = @IdHouse;
+
+	DELETE FROM dt.HouseCounter WHERE IdHouse = @IdHouse; 
+	DELETE FROM dt.Houses WHERE IdHouse = @IdHouse;
+	DELETE FROM dt.Counters WHERE IdCounter= @IdCounter;
+END
+
+CREATE PROCEDURE [dbo].[InputIndicationByIdHouse]
+	@IdHouse INT,
+	@Indication DECIMAL
+AS
+BEGIN
+ /*
+  	DECLARE @IdHouse INT; SET @IdHouse = 5
+	DECLARE @Indication DECIMAL; SET @Indication = '10'
+*/
+	DECLARE @IdCounter INT; 
+	SET @IdCounter = (SELECT hc.IdCounter FROM dt.HouseCounter AS hc WHERE hc.IdHouse = @IdHouse) 			   					 
+
+	DECLARE @OldIndication DECIMAL; 
+	SET @OldIndication = (SELECT c.Indication FROM dt.Counters AS c WHERE c.IdCounter = @IdCounter) 
+
+	IF @OldIndication < @Indication
+	BEGIN		
+		UPDATE dt.Counters
+				SET Indication = @Indication
+				WHERE IdCounter=@IdCounter
+	END
+END
+/*---------------------------------------------------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------Создаём функции-----------------------------------------------------------*/
+CREATE FUNCTION [dbo].[GetId_MaxConsumerHouse]()
+RETURNS INT
+AS
+BEGIN
+	DECLARE @Id int;  
+    SELECT @Id = hcv.IdHouse
+	FROM dt.HouseCounterView AS hcv
+	WHERE hcv.Indication = (SELECT MAX(c.Indication) FROM dt.Counters AS c);
+	RETURN @Id
+END
+
+
+CREATE FUNCTION [dbo].[GetId_MinConsumerHouse]()
+RETURNS INT
+AS
+BEGIN
+	DECLARE @Id int;  
+    SELECT @Id = hcv.IdHouse
+	FROM dt.HouseCounterView AS hcv
+	WHERE hcv.Indication = (SELECT MIN(c.Indication) FROM dt.Counters AS c);
+	RETURN @Id
+END

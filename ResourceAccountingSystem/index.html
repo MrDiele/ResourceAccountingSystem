@@ -1,0 +1,405 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Resource Accounting System</title>
+    <link href="css/menu.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
+</head>
+<body>       
+    <div id="menu" style="display:inline-block;margin: 0 auto;width: 100%;height: 160px;">
+        <ul id="nav" style="padding: 0;display: table;margin: 0 auto;">
+            <li>
+                <a href="#" onclick="ShowInformation()">Информация</a>
+            </li>
+            <li>
+                <a href="#" onclick="ShowGetHouseForId()">Найти</a>
+            </li>
+            <li>
+                <a href="#">Добавить</a>
+                <ul>
+                    <li><a href="#" onclick="ShowAddNewHouseInSystem()">Дом</a></li>
+                    <li><a href="#" onclick="ShowAddNewCounterInHouse()">Счётчик</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#">Показания</a>
+                <ul>
+                    <li><a href="#" onclick="ShowInputIndicationSn()">По с/н счётчика</a></li>
+                    <li><a href="#" onclick="ShowInputIndicationHo()">По ID дома</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>  
+    
+    <div style="display: inline-block;text-align: center;width: 100%;">
+        <div id="information" class="background_div_glass_button" style="display:none;">
+            <h2>Информация по затратам</h2>
+            <div id="max_House"></div>
+            <div id="min_House"></div>
+        </div>
+
+        <div id="getHouseForId" class="background_div_glass_button" style="display:none;">
+            <h2>Найти дом по Id</h2>
+            <label>Введите Id дома:</label>
+            <input type="number" id="IdHouseWhenFind" size="5" />
+            <a href="#" class="glass_button" onclick="find()">Найти</a>
+            <div>
+                <table id="FindHouse" style="display:none"></table>
+            </div>
+            <div id="fail_find"></div>
+        </div>
+
+        <div id="addNewHouseInSystem" class="background_div_glass_button" style="display:none;">
+            <h2>Добавить новый дом</h2>
+            <label>Введите адрес дома:</label>
+            <input type="text" id="adressHouse" size="5" />
+            <a href="#" class="glass_button" onclick="add()">Добавить</a>
+        </div>
+
+        <div id="addNewCounterInHouse" class="background_div_glass_button" style="display:none;">
+            <h2>Добавить новый счётчик</h2>
+            <label>Введите Id дома:</label>
+            <input type="number" id="IdHouseWhenAddCounter" size="5" />
+            <label>Введите серийный номер счётчика:</label>
+            <input type="number" id="SerialNumberWhenAddCounter" size="5" />
+            <label>Введите показания:</label>
+            <input type="number" id="IndicatinWhenAddCounter" size="5" />
+            <a href="#" class="glass_button" onclick="addCounter()">Добавить</a>
+        </div>
+
+        <div id="inputIndicationSn" class="background_div_glass_button" style="display:none;">
+            <h2>Внести показания по серийному номеру счётчика</h2>
+            <label>Введите серийный номер:</label>
+            <input type="number" id="Counter_SerialNumber" size="5" />
+            <label>Введите показания:</label>
+            <input type="number" id="Counter_Indication" size="5" />
+            <a href="#" class="glass_button" onclick="InputIndicationBySerialNumber()">Внести</a>
+            <div id="fail_inputCS"></div>
+        </div>
+
+        <div id="inputIndicationHo" class="background_div_glass_button" style="display:none;">
+            <h2>Внести показания по ID дома</h2>
+            <label>Введите ID дома:</label>
+            <input type="number" id="House_IdHouse" size="5" />
+            <label>Введите показания:</label>
+            <input type="number" id="House_Indication" size="5" />
+            <a href="#" class="glass_button" onclick="InputIndicationByIdHouse()">Внести</a>
+            <div id="fail_inputIH"></div>
+        </div>
+        <h2>Список домов</h2>
+        <div style="display: flex;justify-content: center;">
+            <table id="HouseCounter"></table>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(updateDateOnPage());
+
+        function updateDateOnPage() {
+            var table = document.getElementById("HouseCounter");
+            $('#HouseCounter tr').remove();
+
+            var row = table.insertRow(table.rows.length);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            var cell3 = row.insertCell(2);
+            var cell4 = row.insertCell(3);
+            var call5 = row.insertCell(4);
+
+            cell1.innerHTML = "Id дома";
+            cell2.innerHTML = "Адрес";
+            cell3.innerHTML = "Серийный номер счётчика";
+            cell4.innerHTML = "Показания";
+            call5.innerHTML = "Редактировать"
+
+            $.getJSON('api/HouseCounterViews')
+                .done(function (data) {
+                    $.each(data, function (key, item) {
+                        if (item.SerialNumber == null) {
+                            item.Indication = ''
+                            item.SerialNumber = ''
+                        }
+                        var row = table.insertRow(table.rows.length);
+
+                        var cell1 = row.insertCell(0);
+                        var cell2 = row.insertCell(1);
+                        var cell3 = row.insertCell(2);
+                        var cell4 = row.insertCell(3);
+                        var call5 = row.insertCell(4);
+
+                        cell1.innerHTML = item.IdHouse;
+                        cell2.innerHTML = item.Address;
+                        cell3.innerHTML = item.SerialNumber;
+                        cell4.innerHTML = item.Indication;
+                        call5.innerHTML = "<a href=\"#\" class=\"glass_button\" onclick=\"del(" + item.IdHouse + ", this)\">Удалить</a>"
+                    });
+                });
+            updateMinMax();
+        }
+
+        function formatItem(item) {
+            var Counter = '';
+            if (item.SerialNumber == null) {
+                item.indication = ''
+                item.SerialNumber = ''
+            } else {
+                Counter = ': $' + item.SerialNumber + ': $' + item.Indication
+            }
+            return item.IdHouse + ': $' + item.Address + Counter;
+        }
+
+        function find() {
+            var table = document.getElementById("FindHouse");
+            //var rowCount = table.rows.length;
+            //if (rowCount != 0) {
+            //    for (var i = 0; i < rowCount; i++) {
+            //        table.deleteRow(i);
+            //    }
+            //}
+            $('#FindHouse tr').remove();
+            var id = $('#IdHouseWhenFind').val();
+            $.getJSON("api/Houses/" + id)
+                .done(function (data) {
+                    $('#fail_find').text("");
+                    table.style.display = "inline-block";
+                    if (data.SerialNumber == null) {
+                        data.indication = ''
+                        data.SerialNumber = ''
+                    }
+                    var row = table.insertRow(table.rows.length);
+
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    var cell4 = row.insertCell(3);
+
+                    cell1.innerHTML = data.IdHouse;
+                    cell2.innerHTML = data.Address;
+                    cell3.innerHTML = data.SerialNumber;
+                    cell4.innerHTML = data.Indication;
+                })
+                .fail(function (jqXHR, textStatus, err) {
+                    $('#fail_find').text("Дом с заданным Id не был найден");
+                    table.style.display = "none";
+                });
+        }
+
+        function del(id, o) {
+            $.ajax({
+                type: 'DELETE',
+                url: "api/Houses/" + id,
+                dataType: 'json',
+                success: function () {
+                    var p = o.parentNode.parentNode;
+                    p.parentNode.removeChild(p);
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error in Operation');
+                }
+            });
+        }
+
+        function add() {
+            var house = new Object();
+            house.Address = $('#adressHouse').val();
+            $.ajax({
+                type: 'POST',
+                url: "api/Houses",
+                dataType: 'json',
+                data: house,
+                success: function (data, textStatus, xhr) {
+                    var table = document.getElementById("HouseCounter");
+
+                    if (data.SerialNumber == null) {
+                        data.Indication = ''
+                        data.SerialNumber = ''
+                    }
+                    var row = table.insertRow(table.rows.length);
+
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    var cell4 = row.insertCell(3);
+                    var call5 = row.insertCell(4);
+
+                    cell1.innerHTML = data.IdHouse;
+                    cell2.innerHTML = data.Address;
+                    cell3.innerHTML = data.SerialNumber;
+                    cell4.innerHTML = data.Indication;
+                    call5.innerHTML = "<a href=\"#\" class=\"glass_button\" onclick=\"del(" + data.IdHouse + ", this)\" >Удалить</a>"
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error in Operation');
+                }
+            });
+        }
+
+        function addCounter() {
+            var house = new Object();
+            house.Counters = [{ SerialNumber: $('#SerialNumberWhenAddCounter').val(), Indication: $('#IndicatinWhenAddCounter').val() }];
+            house.IdHouse = $('#IdHouseWhenAddCounter').val();
+            $.ajax({
+                type: 'PUT',
+                url: "/api/Houses/" + $('#IdHouseWhenAddCounter').val(),
+                dataType: 'json',
+                data: house,
+                success: function (data, textStatus, xhr) {
+                    updateDateOnPage();
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error in Operation');
+                }
+            });
+        }
+
+        function updateMinMax() {
+            $.getJSON('api/Houses/maxVal')
+                .done(function (data) {
+                    var element = document.getElementById("max_House");
+                    element.innerHTML = "Адрес дома с максимальным потребление воды: " + data.Address + ". Его потребление составляет: " + data.Indication;
+                })
+                .fail(function (jqXHR, textStatus, err) {
+                    var element = document.getElementById("max_House");
+                    element.innerHTML = "Ошибка получения данных";
+                });
+            $.getJSON('api/Houses/minVal')
+                .done(function (data) {
+                    var element = document.getElementById("min_House");
+                    element.innerHTML = "Адрес дома с минимальным потребление воды: " + data.Address + ". Его потребление составляет: " + data.Indication;
+                })
+                .fail(function (jqXHR, textStatus, err) {
+                    var element = document.getElementById("min_House");
+                    element.innerHTML = "Ошибка получения данных";
+                });
+        }
+
+        function InputIndicationBySerialNumber() {
+            var counter = new Object();
+            counter.SerialNumber = $('#Counter_SerialNumber').val();
+            counter.Indication = $('#Counter_Indication').val();
+            $.ajax({
+                type: 'PUT',
+                url: "api/Counters/",
+                dataType: 'json',
+                data: counter,
+                success: function (data, textStatus, xhr) {
+                    $('#fail_inputCS').text("");
+                    updateDateOnPage();
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error in Operation');
+                    $('#fail_inputCS').text("Ошибка в момент внесения показаний в систему");
+                }
+            });
+        }
+
+        function InputIndicationByIdHouse() {
+            var house = new Object();
+            house.Counters = [{ Indication: $('#House_Indication').val() }];
+            house.IdHouse = $('#House_IdHouse').val();
+            $.ajax({
+                type: 'PUT',
+                url: "api/Houses/inputIndication",
+                dataType: 'json',
+                data: house,
+                success: function (data, textStatus, xhr) {
+                    $('#fail_inputIH').text("");
+                    updateDateOnPage();
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error in Operation');
+                    $('#fail_inputIH').text("Ошибка в момент внесения показаний в систему");
+                }
+            });
+        }
+        //------------------------------------------------------
+
+        function ShowInformation() {                         
+            if (document.getElementById('information').style.display == "inline-block") {
+                document.getElementById('information').style.display = "none";
+                console.log(123);     
+            }
+            else {
+                console.log(555);
+                document.getElementById('information').style.display = "inline-block";
+                document.getElementById('getHouseForId').style.display = "none";
+                document.getElementById('addNewHouseInSystem').style.display = "none";
+                document.getElementById('addNewCounterInHouse').style.display = "none";
+                document.getElementById('inputIndicationSn').style.display = "none";
+                document.getElementById('inputIndicationHo').style.display = "none";
+            }
+        }
+
+        function ShowGetHouseForId() {
+            if (document.getElementById('getHouseForId').style.display == "inline-block") {
+                document.getElementById('getHouseForId').style.display = "none"
+            }
+            else {
+                document.getElementById('information').style.display = "none";
+                document.getElementById('getHouseForId').style.display = "inline-block";
+                document.getElementById('addNewHouseInSystem').style.display = "none";
+                document.getElementById('addNewCounterInHouse').style.display = "none";
+                document.getElementById('inputIndicationSn').style.display = "none";
+                document.getElementById('inputIndicationHo').style.display = "none";
+            }
+        }
+
+        function ShowAddNewHouseInSystem() {
+            if (document.getElementById('addNewHouseInSystem').style.display == "inline-block") {
+                document.getElementById('addNewHouseInSystem').style.display = "none"
+            }
+            else {
+                document.getElementById('information').style.display = "none";
+                document.getElementById('getHouseForId').style.display = "none";
+                document.getElementById('addNewHouseInSystem').style.display = "inline-block";
+                document.getElementById('addNewCounterInHouse').style.display = "none";
+                document.getElementById('inputIndicationSn').style.display = "none";
+                document.getElementById('inputIndicationHo').style.display = "none";
+            }
+        }
+
+        function ShowAddNewCounterInHouse() {
+            if (document.getElementById('addNewCounterInHouse').style.display == "inline-block") {
+                document.getElementById('addNewCounterInHouse').style.display = "none"
+            }
+            else {
+                document.getElementById('information').style.display = "none";
+                document.getElementById('getHouseForId').style.display = "none";
+                document.getElementById('addNewHouseInSystem').style.display = "none";
+                document.getElementById('addNewCounterInHouse').style.display = "inline-block";
+                document.getElementById('inputIndicationSn').style.display = "none";
+                document.getElementById('inputIndicationHo').style.display = "none";
+            }
+        }
+
+        function ShowInputIndicationSn() {
+            if (document.getElementById('inputIndicationSn').style.display == "inline-block") {
+                document.getElementById('inputIndicationSn').style.display = "none"
+            }
+            else {
+                document.getElementById('information').style.display = "none";
+                document.getElementById('getHouseForId').style.display = "none";
+                document.getElementById('addNewHouseInSystem').style.display = "none";
+                document.getElementById('addNewCounterInHouse').style.display = "none";
+                document.getElementById('inputIndicationSn').style.display = "inline-block";
+                document.getElementById('inputIndicationHo').style.display = "none";
+            }
+        }
+
+        function ShowInputIndicationHo() {
+            if (document.getElementById('inputIndicationHo').style.display == "inline-block") {
+                document.getElementById('inputIndicationHo').style.display = "none"
+            }
+            else {
+                document.getElementById('information').style.display = "none";
+                document.getElementById('getHouseForId').style.display = "none";
+                document.getElementById('addNewHouseInSystem').style.display = "none";
+                document.getElementById('addNewCounterInHouse').style.display = "none";
+                document.getElementById('inputIndicationSn').style.display = "none";
+                document.getElementById('inputIndicationHo').style.display = "inline-block";
+            }
+        }
+    </script>
+</body>
+</html>
