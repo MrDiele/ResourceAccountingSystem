@@ -12,15 +12,24 @@ namespace ResourceAccountingSystem.Controllers
     {
         private HomeDataEntities db = new HomeDataEntities();
 
+        /// <summary>
+        /// Получить список счётчиков в системе.
+        /// </summary>
+        /// <returns>Список счётчиков.</returns>
         // GET: api/Counters
         public IQueryable<Counters> GetCounters()
         {
             return db.Counters;
         }
 
+        /// <summary>
+        /// Внести показания по серийному номеру.
+        /// </summary>
+        /// <param name="counters">Обьект счётчик с новыми показаниями</param>
+        /// <returns>Статус сообщения Http.</returns>
         // PUT: api/Counters
         [ResponseType(typeof(void))]
-        public IHttpActionResult PutCounters(Counters counters)       //внести показания по серийному номеру
+        public IHttpActionResult PutCounters(Counters counters)
         {
             bool needSave = false;
             if (!ModelState.IsValid)
@@ -28,7 +37,10 @@ namespace ResourceAccountingSystem.Controllers
                 return BadRequest(ModelState);
             }
 
-            IQueryable<Counters> cts = db.Counters.Where(c => c.SerialNumber == counters.SerialNumber);           
+            //ищем счётчик по серийному номеру
+            IQueryable<Counters> cts = db.Counters.Where(c => c.SerialNumber == counters.SerialNumber); 
+            
+            //если нашли счётчик вносим изменения и выставляем признак необходимости сохранения
             if (cts.ToList().Count() != 0)                     
             {
                 foreach (Counters counter in cts)
@@ -46,6 +58,7 @@ namespace ResourceAccountingSystem.Controllers
                 return BadRequest();
             }
 
+            //проверяем необходимо ли сохранение, если да то сохранияем
             if (needSave)
             {
                 try
@@ -53,11 +66,15 @@ namespace ResourceAccountingSystem.Controllers
                     db.SaveChanges();
                 }
                 catch (DbUpdateConcurrencyException) { }
-            }      
-
+            } 
+            
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        /// <summary>
+        /// Диструктор класса.
+        /// </summary>
+        /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -65,11 +82,6 @@ namespace ResourceAccountingSystem.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool CountersExists(int id)
-        {
-            return db.Counters.Count(e => e.IdCounter == id) > 0;
         }
     }
 }

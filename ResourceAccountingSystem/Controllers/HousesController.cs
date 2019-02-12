@@ -12,15 +12,24 @@ namespace ResourceAccountingSystem.Controllers
     {
         private HomeDataEntities db = new HomeDataEntities();
 
+        /// <summary>
+        /// Получить список домов в системе.
+        /// </summary>
+        /// <returns>Список домов.</returns>
         // GET: api/Houses
-        public IQueryable<Houses> GetHouses()                                                                           //получить список домов
+        public IQueryable<Houses> GetHouses()                                                                          
         {
             return db.Houses;
         }
 
+        /// <summary>
+        /// Найти дом по ID.
+        /// </summary>
+        /// <param name="id">ID дома.</param>
+        /// <returns>В случае успешного выполнения возвращает сообщение содержащее обьект House.</returns>
         // GET: api/Houses/5
         [ResponseType(typeof(Houses))]
-        public IHttpActionResult GetHouses(int id)                                                          //найти дом по ID
+        public IHttpActionResult GetHouses(int id)                                                
         {
             Houses houses = db.Houses.Find(id);
             if (houses == null)
@@ -32,6 +41,7 @@ namespace ResourceAccountingSystem.Controllers
             {
                 return NotFound();
             }
+            //формируем ответ
             House answer = new House
             {
                 IdHouse = houseCounterView.IdHouse,
@@ -43,12 +53,19 @@ namespace ResourceAccountingSystem.Controllers
             return Ok(answer);
         }
 
-        [ResponseType(typeof(Houses))]
+        /// <summary>
+        /// Найти дом с максимальным потреблением воды.
+        /// </summary>
+        /// <returns>В случае успешного выполнения возвращает сообщение содержащее обьект House.</returns>
+        [ResponseType(typeof(House))]
         [Route("api/Houses/maxVal")]
-        public IHttpActionResult GetMaxHouseConsumer()                                                          //найти дом с максимальным потреблением воды
+        public IHttpActionResult GetMaxHouseConsumer()                                                     
         {
             House answer = null;
+            //запускаем функцию 
             var houses = db.Database.SqlQuery<House>(@"SELECT * FROM [dbo].[GetId_MaxConsumerHouse]()");
+            
+            //формируем ответ
             foreach (var house in houses)
             {
                 answer = new House
@@ -60,12 +77,19 @@ namespace ResourceAccountingSystem.Controllers
             return Ok(answer);
         }
 
-        [ResponseType(typeof(Houses))]
+        /// <summary>
+        /// Найти дом с максимальным потреблением воды.
+        /// </summary>
+        /// <returns>В случае успешного выполнения возвращает сообщение содержащее обьект House.</returns>
+        [ResponseType(typeof(House))]
         [Route("api/Houses/minVal")]
-        public IHttpActionResult GetMinHouseConsumer()                                                          //найти дом с максимальным потреблением воды
+        public IHttpActionResult GetMinHouseConsumer()                                                       
         {
             House answer = null;
+            //запускаем функцию 
             var houses = db.Database.SqlQuery<House>(@"SELECT * FROM [dbo].[GetId_MinConsumerHouse]()");
+
+            //формируем ответ
             foreach (var house in houses)
             {
                 answer = new House
@@ -77,8 +101,14 @@ namespace ResourceAccountingSystem.Controllers
             return Ok(answer);
         }
 
+        /// <summary>
+        /// Зарегистрировать новый счётчик по ID дома или внести показания по ID дома.
+        /// </summary>
+        /// <param name="id">ID дома.</param>
+        /// <param name="houses">Обьект Houses.</param>
+        /// <returns>Статус сообщения Http.</returns>
         // PUT: api/Houses/5
-        [ResponseType(typeof(void))]                                                                          //зарегистрировать новый счётчик по ID дома или внести показания по ID дома
+        [ResponseType(typeof(void))]                                                                       
         public IHttpActionResult PutHouses(int id, Houses houses)
         {
             if (!ModelState.IsValid)
@@ -93,6 +123,7 @@ namespace ResourceAccountingSystem.Controllers
 
             if (houses.Counters.Count != 0)
             {
+                //запускаем процедуру сохранения нового счётчика и привязки его к дому
                 foreach (Counters counter in houses.Counters)
                 {
                     try
@@ -106,8 +137,13 @@ namespace ResourceAccountingSystem.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        /// <summary>
+        /// Зарегистрировать новые показания по ID дома.
+        /// </summary>
+        /// <param name="houses">Обьект Houses.</param>
+        /// <returns>Статус сообщения Http.</returns>
         [ResponseType(typeof(void))]
-        [Route("api/Houses/inputIndication")]                                                                    //зарегистрировать новые показания по ID дома
+        [Route("api/Houses/inputIndication")]                                                                   
         public IHttpActionResult PutHouseIndication(Houses houses)
         {
             if (!ModelState.IsValid)
@@ -117,6 +153,7 @@ namespace ResourceAccountingSystem.Controllers
 
             if (houses.Counters.Count != 0)
             {
+                //запускаем процедуру сохранения показаний по ID дома
                 foreach (Counters counter in houses.Counters)
                 {
                     try
@@ -130,18 +167,25 @@ namespace ResourceAccountingSystem.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        /// <summary>
+        /// Создать новый дом.
+        /// </summary>
+        /// <param name="houses">Обьект Houses.</param>
         // POST: api/Houses
         [ResponseType(typeof(Houses))]
-        public IHttpActionResult PostHouses(Houses houses)                                                  //создать новый дом
+        public IHttpActionResult PostHouses(Houses houses)                                              
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
+            //Добавляем новый дом
             db.Houses.Add(houses);
+
             try
             {
+                //Сохраняем изменения
                 db.SaveChanges();
             }
             catch (DbUpdateException)
@@ -152,10 +196,16 @@ namespace ResourceAccountingSystem.Controllers
             return CreatedAtRoute("DefaultApi", new { id = houses.IdHouse }, houses);
         }
 
+        /// <summary>
+        /// Удалить дом по ID.
+        /// </summary>
+        /// <param name="id">ID удаляемого дома.</param>
+        /// <returns>Статус сообщения Http.</returns>
         // DELETE: api/Houses/5
         [ResponseType(typeof(Houses))]
-        public IHttpActionResult DeleteHouses(int id)                                                       //удалить дом
+        public IHttpActionResult DeleteHouses(int id)                                                     
         {
+            //Проверяем существует ли дом
             Houses houses = db.Houses.Find(id);
             if (houses == null)
             {
@@ -163,6 +213,7 @@ namespace ResourceAccountingSystem.Controllers
             }
             try
             {
+                //запускаем процедуру удаления
                 db.DeleteHouseWithCounter(id);
             }
             catch (Exception) { }
@@ -170,6 +221,10 @@ namespace ResourceAccountingSystem.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        /// <summary>
+        /// Диструктор класса.
+        /// </summary>
+        /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -177,11 +232,6 @@ namespace ResourceAccountingSystem.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool HousesExists(int id)
-        {
-            return db.Houses.Count(e => e.IdHouse == id) > 0;
         }
     }
 }
