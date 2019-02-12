@@ -140,24 +140,37 @@ END
 /*---------------------------------------------------------------------------------------------------------------------------------*/
 /*-------------------------------------------------------Создаём функции-----------------------------------------------------------*/
 CREATE FUNCTION [dbo].[GetId_MaxConsumerHouse]()
-RETURNS INT
+RETURNS @returnTab TABLE
+(
+	IdHouse	INT,
+	Address nvarchar(100),
+	SerialNumber INT, 
+	Indication DECIMAL
+)
 AS
 BEGIN
-	DECLARE @Id int;  
-    SELECT @Id = hcv.IdHouse
+INSERT @returnTab 
+  
+    	SELECT hcv.IdHouse, hcv.Address , hcv.SerialNumber , hcv.Indication 
 	FROM dt.HouseCounterView AS hcv
 	WHERE hcv.Indication = (SELECT MAX(c.Indication) FROM dt.Counters AS c);
-	RETURN @Id
+	RETURN
 END
 
-
 CREATE FUNCTION [dbo].[GetId_MinConsumerHouse]()
-RETURNS INT
+RETURNS @returnTab TABLE
+(
+	IdHouse	INT,
+	Address nvarchar(100),
+	SerialNumber INT, 
+	Indication DECIMAL
+)
 AS
 BEGIN
-	DECLARE @Id int;  
-    SELECT @Id = hcv.IdHouse
+INSERT @returnTab 
+  
+    	SELECT hcv.IdHouse, hcv.Address , hcv.SerialNumber , hcv.Indication 
 	FROM dt.HouseCounterView AS hcv
 	WHERE hcv.Indication = (SELECT MIN(c.Indication) FROM dt.Counters AS c);
-	RETURN @Id
+	RETURN
 END

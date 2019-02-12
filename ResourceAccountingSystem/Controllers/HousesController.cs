@@ -43,19 +43,20 @@ namespace ResourceAccountingSystem.Controllers
             return Ok(answer);
         }
 
-        [ResponseType(typeof(House))]
+        [ResponseType(typeof(Houses))]
         [Route("api/Houses/maxVal")]
         public IHttpActionResult GetMaxHouseConsumer()                                                          //найти дом с максимальным потреблением воды
         {
-            var id = db.Database.SqlQuery<int>(@"DECLARE @return_value Int 
-                                                EXEC @return_value = [dbo].[GetId_MaxConsumerHouse]                        
-                                                SELECT @return_value as 'Return Value'").FirstOrDefault();
-            Houses houses = db.Houses.Find(id);
-            House answer = new House
+            House answer = null;
+            var houses = db.Database.SqlQuery<House>(@"SELECT * FROM [dbo].[GetId_MaxConsumerHouse]()");
+            foreach (var house in houses)
             {
-                Address = houses.Address,
-                Indication = houses.Counters.First().Indication
-            };
+                answer = new House
+                {
+                    Address = house.Address,
+                    Indication = house.Indication
+                };
+            }
             return Ok(answer);
         }
 
@@ -63,15 +64,16 @@ namespace ResourceAccountingSystem.Controllers
         [Route("api/Houses/minVal")]
         public IHttpActionResult GetMinHouseConsumer()                                                          //найти дом с максимальным потреблением воды
         {
-            var id = db.Database.SqlQuery<int>(@"DECLARE @return_value Int 
-                                                EXEC @return_value = [dbo].[GetId_MinConsumerHouse]                     
-                                                SELECT @return_value as 'Return Value'").FirstOrDefault();
-            Houses houses = db.Houses.Find(id);
-            House answer = new House
+            House answer = null;
+            var houses = db.Database.SqlQuery<House>(@"SELECT * FROM [dbo].[GetId_MinConsumerHouse]()");
+            foreach (var house in houses)
             {
-                Address = houses.Address,
-                Indication = houses.Counters.First().Indication
-            };
+                answer = new House
+                {
+                    Address = house.Address,
+                    Indication = house.Indication
+                };
+            }
             return Ok(answer);
         }
 
