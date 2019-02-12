@@ -15,7 +15,7 @@ namespace ResourceAccountingSystem.Models
     using System.Data.Entity.Core.Objects;
     using System.Linq;
     
-    public partial class HomeDataEntities : DbContext
+    public partial class HomeDataEntities : DbContext, IHomeModelContext
     {
         public HomeDataEntities()
             : base("name=HomeDataEntities")
@@ -30,7 +30,12 @@ namespace ResourceAccountingSystem.Models
         public virtual DbSet<Counters> Counters { get; set; }
         public virtual DbSet<Houses> Houses { get; set; }
         public virtual DbSet<HouseCounterView> HouseCounterView { get; set; }
-    
+
+        public void MarkAsModified(Counters item)
+        {
+            Entry(item).State = EntityState.Modified;
+        }
+
         public virtual int AddCounter(Nullable<int> idHouse, Nullable<int> serialNumber, Nullable<decimal> indication)
         {
             var idHouseParameter = idHouse.HasValue ?
