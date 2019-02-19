@@ -1,33 +1,24 @@
-﻿using System;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
+using ResourceAccountingSystem.Controllers.BusinessLogic;
 using ResourceAccountingSystem.Models;
 
 namespace ResourceAccountingSystem.Controllers
 {
     public class CountersController : ApiController
     {
-        private IHomeModelContext db = new HomeDataEntities();
-
-        public CountersController() { }
-
-        public CountersController(IHomeModelContext context)
-        {
-            db = context;
-        }
+        CountersBL countersBL = new CountersBL();
 
         /// <summary>
         /// Получить список счётчиков в системе.
         /// </summary>
         /// <returns>Список счётчиков.</returns>
         // GET: api/Counters
-        public IQueryable<Counters> GetCounters()
+        public List<Counters> GetCounters()
         {
-            return db.Counters;
+            return countersBL.GetHouses();
         }
 
         /// <summary>
@@ -43,20 +34,11 @@ namespace ResourceAccountingSystem.Controllers
                 return BadRequest(ModelState);
             }
 
-            //Добавляем новый счётчик
-            db.Counters.Add(counters);
-
-            try
-            {
-                //Сохраняем изменения
-                db.SaveChanges();
-            }
-            catch (DbUpdateException)
-            {
+            var newHouse = countersBL.AddNewCounter(counters);
+            if (newHouse != null)
+                return CreatedAtRoute("DefaultApi", new { id = counters.IdCounter }, counters);
+            else
                 return Conflict();
-            }
-
-            return CreatedAtRoute("DefaultApi", new { id = counters.IdCounter }, counters);
         }
 
         /// <summary>
@@ -68,51 +50,15 @@ namespace ResourceAccountingSystem.Controllers
         [ResponseType(typeof(void))]
         public IHttpActionResult PutCounters(Counters counters)
         {
-            bool needSave = false;
             if (!ModelState.IsValid)
             {
-                return StatusCode(HttpStatusCode.BadRequest);//BadRequest(ModelState);
+                return StatusCode(HttpStatusCode.BadRequest);
             }
 
-            //if (!CountersExists(counters.IdCounter))
-            //{
-            //    return NotFound();
-            //}
-
-            //ищем счётчик по серийному номеру
-            IQueryable<Counters> cts = db.Counters.Where(c => c.SerialNumber == counters.SerialNumber); 
-            
-
-            //если нашли счётчик вносим изменения и выставляем признак необходимости сохранения
-            if (cts.ToList().Count() != 0)                     
-            {
-                foreach (Counters counter in cts)
-                {
-                    if (counter.Indication < counters.Indication)
-                    {
-                        counter.Indication = counters.Indication;
-                        db.MarkAsModified(counter);
-                        //db.Entry(counter).State = EntityState.Modified;
-                        needSave = true;
-                    }
-                }
-            }
-            else  
-            {
-                return StatusCode(HttpStatusCode.NotFound);//BadRequest();
-            }
-
-            //проверяем необходимо ли сохранение, если да то сохранияем
-            if (needSave)
-            {
-                try
-                {
-                    db.SaveChanges();
-                }
-                catch (DbUpdateConcurrencyException) { }
-            } 
-            
-            return StatusCode(HttpStatusCode.NoContent);
+            if (countersBL.InputIndication(counters))
+                return StatusCode(HttpStatusCode.NoContent);
+            else
+                return StatusCode(HttpStatusCode.NotFound);
         }
 
         /// <summary>
@@ -121,16 +67,7 @@ namespace ResourceAccountingSystem.Controllers
         /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                db.Dispose();
-            }
             base.Dispose(disposing);
-        }
-
-        private bool CountersExists(int id)
-        {
-            return db.Counters.Count(e => e.IdCounter == id) > 0;
         }
     }
 }

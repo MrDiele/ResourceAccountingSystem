@@ -1,21 +1,22 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
 using System.Web.Http;
+using ResourceAccountingSystem.BusinessLogic;
 using ResourceAccountingSystem.Models;
 
 namespace ResourceAccountingSystem.Controllers
 {
     public class HouseCounterViewsController : ApiController
     {
-        private HomeDataEntities db = new HomeDataEntities();
+        //private HomeDataEntities db = new HomeDataEntities();
 
         /// <summary>
-        /// Получить список обьектов представления HouseCounterView.
+        /// Получить список из представления HouseCounterView.
         /// </summary>
         /// <returns>Список обьектов.</returns>
         // GET: api/HouseCounterViews
-        public IQueryable<HouseCounterView> GetHouseCounterView()
+        public List<HouseCounterView> GetHouseCounterView()
         {
-            return db.HouseCounterView;
+            return HouseCounterViewsBL.GetHouseCounterView();
         }
 
         /// <summary>
@@ -24,10 +25,6 @@ namespace ResourceAccountingSystem.Controllers
         /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                db.Dispose();
-            }
             base.Dispose(disposing);
         }
     }

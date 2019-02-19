@@ -127,7 +127,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="BusinessLogic\CountersBL.cs" />
+    <Compile Include="BusinessLogic\HouseCounterViewsBL.cs" />
+    <Compile Include="BusinessLogic\HousesBL.cs" />
     <Compile Include="Controllers\CountersController.cs" />
+    <Compile Include="DAL\CountersDAL.cs" />
+    <Compile Include="DAL\HouseCounterViewsDAL.cs" />
+    <Compile Include="DAL\HousesDAL.cs" />
     <Compile Include="Controllers\HouseCounterViewsController.cs" />
     <Compile Include="Controllers\HousesController.cs" />
     <Compile Include="Global.asax.cs">
@@ -160,6 +166,7 @@
     </Compile>
     <Compile Include="Models\IHomeModelContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\Logs.cs" />
   </ItemGroup>
   <ItemGroup>
     <EntityDeploy Include="Models\HomeModel.edmx">

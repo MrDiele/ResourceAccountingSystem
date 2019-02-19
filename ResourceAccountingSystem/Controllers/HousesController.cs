@@ -1,25 +1,22 @@
-﻿using System;
-using System.Data.Entity.Infrastructure;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
+using ResourceAccountingSystem.BusinessLogic;
 using ResourceAccountingSystem.Models;
 
 namespace ResourceAccountingSystem.Controllers
 {
     public class HousesController : ApiController
     {
-        private HomeDataEntities db = new HomeDataEntities();
-
         /// <summary>
         /// Получить список домов в системе.
         /// </summary>
         /// <returns>Список домов.</returns>
         // GET: api/Houses
-        public IQueryable<Houses> GetHouses()                                                                          
+        public List<Houses> GetHouses()                                                                          
         {
-            return db.Houses;
+            return HousesBL.GetHouses();
         }
 
         /// <summary>
@@ -31,26 +28,7 @@ namespace ResourceAccountingSystem.Controllers
         [ResponseType(typeof(Houses))]
         public IHttpActionResult GetHouses(int id)                                                
         {
-            Houses houses = db.Houses.Find(id);
-            if (houses == null)
-            {
-                return NotFound();
-            }
-            HouseCounterView houseCounterView = db.HouseCounterView.Find(houses.IdHouse, houses.Address);
-            if (houseCounterView == null)
-            {
-                return NotFound();
-            }
-            //формируем ответ
-            House answer = new House
-            {
-                IdHouse = houseCounterView.IdHouse,
-                SerialNumber = Convert.ToInt32(houseCounterView.SerialNumber),
-                Address = houseCounterView.Address,
-                Indication = Convert.ToDecimal(houseCounterView.Indication)
-            };
-
-            return Ok(answer);
+            return Ok(HousesBL.GetHouse(id));
         }
 
         /// <summary>
@@ -61,20 +39,7 @@ namespace ResourceAccountingSystem.Controllers
         [Route("api/Houses/maxVal")]
         public IHttpActionResult GetMaxHouseConsumer()                                                     
         {
-            House answer = null;
-            //запускаем функцию 
-            var houses = db.Database.SqlQuery<House>(@"SELECT * FROM [dbo].[GetId_MaxConsumerHouse]()");
-            
-            //формируем ответ
-            foreach (var house in houses)
-            {
-                answer = new House
-                {
-                    Address = house.Address,
-                    Indication = house.Indication
-                };
-            }
-            return Ok(answer);
+            return Ok(HousesBL.GetMaxHouseConsumer());
         }
 
         /// <summary>
@@ -85,20 +50,7 @@ namespace ResourceAccountingSystem.Controllers
         [Route("api/Houses/minVal")]
         public IHttpActionResult GetMinHouseConsumer()                                                       
         {
-            House answer = null;
-            //запускаем функцию 
-            var houses = db.Database.SqlQuery<House>(@"SELECT * FROM [dbo].[GetId_MinConsumerHouse]()");
-
-            //формируем ответ
-            foreach (var house in houses)
-            {
-                answer = new House
-                {
-                    Address = house.Address,
-                    Indication = house.Indication
-                };
-            }
-            return Ok(answer);
+            return Ok(HousesBL.GetMinHouseConsumer());
         }
 
         /// <summary>
@@ -116,25 +68,10 @@ namespace ResourceAccountingSystem.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (id != houses.IdHouse)
-            {
-                return BadRequest();
-            }
-
-            if (houses.Counters.Count != 0)
-            {
-                //запускаем процедуру сохранения нового счётчика и привязки его к дому
-                foreach (Counters counter in houses.Counters)
-                {
-                    try
-                    {
-                        db.AddCounterOrInputIndicationOfIdHouse(id, counter.SerialNumber, counter.Indication);
-                    }
-                    catch (Exception) { }
-                }
-            }
-
-            return StatusCode(HttpStatusCode.NoContent);
+            if (HousesBL.AddNewCounterInHouse(id, houses))
+                return StatusCode(HttpStatusCode.NoContent);
+            else
+                return StatusCode(HttpStatusCode.InternalServerError);
         }
 
         /// <summary>
@@ -151,20 +88,10 @@ namespace ResourceAccountingSystem.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (houses.Counters.Count != 0)
-            {
-                //запускаем процедуру сохранения показаний по ID дома
-                foreach (Counters counter in houses.Counters)
-                {
-                    try
-                    {
-                        db.InputIndicationByIdHouse(houses.IdHouse, counter.Indication);
-                    }
-                    catch (Exception) { }
-                }
-            }
-
-            return StatusCode(HttpStatusCode.NoContent);
+            if (HousesBL.InputIndicationByIdHouse(houses))
+                return StatusCode(HttpStatusCode.NoContent);
+            else
+                return StatusCode(HttpStatusCode.InternalServerError);
         }
 
         /// <summary>
@@ -175,25 +102,16 @@ namespace ResourceAccountingSystem.Controllers
         [ResponseType(typeof(Houses))]
         public IHttpActionResult PostHouses(Houses houses)                                              
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid)                              
             {
                 return BadRequest(ModelState);
             }
 
-            //Добавляем новый дом
-            db.Houses.Add(houses);
-
-            try
-            {
-                //Сохраняем изменения
-                db.SaveChanges();
-            }
-            catch (DbUpdateException)
-            {
+            var newHouse = HousesBL.AddNewHouse(houses);
+            if (newHouse != null)
+                return CreatedAtRoute("DefaultApi", new { id = newHouse.IdHouse }, newHouse);
+            else
                 return Conflict();
-            }
-
-            return CreatedAtRoute("DefaultApi", new { id = houses.IdHouse }, houses);
         }
 
         /// <summary>
@@ -205,20 +123,10 @@ namespace ResourceAccountingSystem.Controllers
         [ResponseType(typeof(Houses))]
         public IHttpActionResult DeleteHouses(int id)                                                     
         {
-            //Проверяем существует ли дом
-            Houses houses = db.Houses.Find(id);
-            if (houses == null)
-            {
-                return NotFound();
-            }
-            try
-            {
-                //запускаем процедуру удаления
-                db.DeleteHouseWithCounter(id);
-            }
-            catch (Exception) { }
-
-            return StatusCode(HttpStatusCode.NoContent);
+            if (HousesBL.DelHouse(id))
+                return StatusCode(HttpStatusCode.NoContent);
+            else
+                return StatusCode(HttpStatusCode.InternalServerError);
         }
 
         /// <summary>
@@ -227,10 +135,6 @@ namespace ResourceAccountingSystem.Controllers
         /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                db.Dispose();
-            }
             base.Dispose(disposing);
         }
     }
