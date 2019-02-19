@@ -8,13 +8,21 @@ namespace ResourceAccountingSystem.BusinessLogic
 {
     public class HousesBL
     {
+        #region Fields
         private HousesDAL housesDAL;
+        #endregion
 
+        #region Constructor
+        /// <summary>
+        /// Конструктор класса.
+        /// </summary>
         public HousesBL()
         {
             housesDAL = new HousesDAL();
         }
+        #endregion
 
+        #region Public methods
         /// <summary>
         /// Получить список домов.
         /// </summary>
@@ -39,6 +47,7 @@ namespace ResourceAccountingSystem.BusinessLogic
                 {
                     return null;
                 }
+                //получаем информацию о доме
                 HouseCounterViewsDAL houseCounterViewsDAL = new HouseCounterViewsDAL();
                 HouseCounterView houseCounterView = houseCounterViewsDAL.GetHouseCounter(houses.IdHouse, houses.Address);
                 if (houseCounterView == null)
@@ -206,7 +215,7 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// <returns></returns>
         public bool DelHouse(int id)
         {
-            //Проверяем существует ли дом
+            //проверяем существует ли дом
             Houses houses = housesDAL.GetHouse(id);
             if (houses == null)
             {
@@ -226,5 +235,6 @@ namespace ResourceAccountingSystem.BusinessLogic
                 return false;
             }
         }
+        #endregion
     }
 }

@@ -6,28 +6,54 @@ namespace ResourceAccountingSystem.Controllers.BusinessLogic
 {
     public class CountersBL
     {
+        #region Fields
         private CountersDAL countersDAL;
+        #endregion
 
+        #region Constructor
+        /// <summary>
+        /// Конструктор класса.
+        /// </summary>
         public CountersBL()
         {
             countersDAL = new CountersDAL();
         }
 
+        /// <summary>
+        /// Конструктор класса для тестов.
+        /// </summary>
+        /// <param name="context"></param>
         public CountersBL(IHomeModelContext context)
         {
             countersDAL = new CountersDAL(context);
         }
+        #endregion
 
+        #region Public methods
+        /// <summary>
+        /// Получает список домов в системе.
+        /// </summary>
+        /// <returns></returns>
         public List<Counters> GetHouses()
         {             
             return countersDAL.GetCounters();
         }
 
+        /// <summary>
+        /// Добавляет новый счётчик.
+        /// </summary>
+        /// <param name="counters"></param>
+        /// <returns></returns>
         public Counters AddNewCounter(Counters counters)
         {
             return countersDAL.AddNewCounter(counters);
         }
 
+        /// <summary>
+        /// Вносит показания.
+        /// </summary>
+        /// <param name="counters"></param>
+        /// <returns></returns>
         public bool InputIndication(Counters counters)
         {
             //ищем счётчик по серийному номеру
@@ -51,7 +77,14 @@ namespace ResourceAccountingSystem.Controllers.BusinessLogic
                 return false;
             }
         }
+        #endregion
 
+        #region Private methods
+        /// <summary>
+        /// Проверяет существование счётчиков.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         private bool CountersExists(int id)
         {
             if (countersDAL.FindCount(id) > 0)
@@ -59,5 +92,6 @@ namespace ResourceAccountingSystem.Controllers.BusinessLogic
             else
                 return false;
         }
+        #endregion
     }
 }
