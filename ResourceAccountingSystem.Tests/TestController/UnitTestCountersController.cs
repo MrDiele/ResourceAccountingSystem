@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ResourceAccountingSystem.Models;
-using ResourceAccountingSystem.Controllers.DAL;
-using ResourceAccountingSystem.Controllers.BusinessLogic;
+using ResourceAccountingSystem.DAL;
+using ResourceAccountingSystem.BusinessLogic;
 
 namespace ResourceAccountingSystem.Tests
 {
