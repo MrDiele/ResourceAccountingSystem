@@ -2,7 +2,7 @@
 using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
-using ResourceAccountingSystem.Controllers.BusinessLogic;
+using ResourceAccountingSystem.BusinessLogic;
 using ResourceAccountingSystem.Models;
 
 namespace ResourceAccountingSystem.Controllers

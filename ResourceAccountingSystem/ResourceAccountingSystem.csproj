@@ -111,7 +111,7 @@
       <DependentUpon>HomeData.mdf</DependentUpon>
     </Content>
     <Content Include="Global.asax" />
-    <Content Include="index.html" />
+    <Content Include="Views\index.html" />
     <Content Include="Models\HomeModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>HomeModel.edmx</DependentUpon>
@@ -122,18 +122,18 @@
       <DependentUpon>HomeModel.edmx</DependentUpon>
       <LastGenOutput>HomeModel.cs</LastGenOutput>
     </Content>
-    <Content Include="Scripts\IndexScript.js" />
+    <Content Include="Views\Scripts\IndexScript.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="BusinessLogic\CountersBL.cs" />
-    <Compile Include="BusinessLogic\HouseCounterViewsBL.cs" />
-    <Compile Include="BusinessLogic\HousesBL.cs" />
+    <Compile Include="Models\BusinessLogic\CountersBL.cs" />
+    <Compile Include="Models\BusinessLogic\HouseCounterViewsBL.cs" />
+    <Compile Include="Models\BusinessLogic\HousesBL.cs" />
     <Compile Include="Controllers\CountersController.cs" />
-    <Compile Include="DAL\CountersDAL.cs" />
-    <Compile Include="DAL\HouseCounterViewsDAL.cs" />
-    <Compile Include="DAL\HousesDAL.cs" />
+    <Compile Include="App_Data\DAL\CountersDAL.cs" />
+    <Compile Include="App_Data\DAL\HouseCounterViewsDAL.cs" />
+    <Compile Include="App_Data\DAL\HousesDAL.cs" />
     <Compile Include="Controllers\HouseCounterViewsController.cs" />
     <Compile Include="Controllers\HousesController.cs" />
     <Compile Include="Global.asax.cs">

@@ -1,8 +1,8 @@
-﻿using ResourceAccountingSystem.Controllers.DAL;
+﻿using ResourceAccountingSystem.DAL;
 using ResourceAccountingSystem.Models;
 using System.Collections.Generic;
 
-namespace ResourceAccountingSystem.Controllers.BusinessLogic
+namespace ResourceAccountingSystem.BusinessLogic
 {
     public class CountersBL
     {

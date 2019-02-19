@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 
-namespace ResourceAccountingSystem.Controllers.DAL
+namespace ResourceAccountingSystem.DAL
 {
     public class CountersDAL
     {
