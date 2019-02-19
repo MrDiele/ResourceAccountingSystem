@@ -9,6 +9,8 @@ namespace ResourceAccountingSystem.Controllers
 {
     public class HousesController : ApiController
     {
+        HousesBL housesBL = new HousesBL();
+
         /// <summary>
         /// Получить список домов в системе.
         /// </summary>
@@ -16,7 +18,7 @@ namespace ResourceAccountingSystem.Controllers
         // GET: api/Houses
         public List<Houses> GetHouses()                                                                          
         {
-            return HousesBL.GetHouses();
+            return housesBL.GetHouses();
         }
 
         /// <summary>
@@ -28,7 +30,7 @@ namespace ResourceAccountingSystem.Controllers
         [ResponseType(typeof(Houses))]
         public IHttpActionResult GetHouses(int id)                                                
         {
-            return Ok(HousesBL.GetHouse(id));
+            return Ok(housesBL.GetHouse(id));
         }
 
         /// <summary>
@@ -39,7 +41,7 @@ namespace ResourceAccountingSystem.Controllers
         [Route("api/Houses/maxVal")]
         public IHttpActionResult GetMaxHouseConsumer()                                                     
         {
-            return Ok(HousesBL.GetMaxHouseConsumer());
+            return Ok(housesBL.GetMaxHouseConsumer());
         }
 
         /// <summary>
@@ -50,7 +52,7 @@ namespace ResourceAccountingSystem.Controllers
         [Route("api/Houses/minVal")]
         public IHttpActionResult GetMinHouseConsumer()                                                       
         {
-            return Ok(HousesBL.GetMinHouseConsumer());
+            return Ok(housesBL.GetMinHouseConsumer());
         }
 
         /// <summary>
@@ -68,7 +70,7 @@ namespace ResourceAccountingSystem.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (HousesBL.AddNewCounterInHouse(id, houses))
+            if (housesBL.AddNewCounterInHouse(id, houses))
                 return StatusCode(HttpStatusCode.NoContent);
             else
                 return StatusCode(HttpStatusCode.InternalServerError);
@@ -88,7 +90,7 @@ namespace ResourceAccountingSystem.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (HousesBL.InputIndicationByIdHouse(houses))
+            if (housesBL.InputIndicationByIdHouse(houses))
                 return StatusCode(HttpStatusCode.NoContent);
             else
                 return StatusCode(HttpStatusCode.InternalServerError);
@@ -107,7 +109,7 @@ namespace ResourceAccountingSystem.Controllers
                 return BadRequest(ModelState);
             }
 
-            var newHouse = HousesBL.AddNewHouse(houses);
+            var newHouse = housesBL.AddNewHouse(houses);
             if (newHouse != null)
                 return CreatedAtRoute("DefaultApi", new { id = newHouse.IdHouse }, newHouse);
             else
@@ -123,7 +125,7 @@ namespace ResourceAccountingSystem.Controllers
         [ResponseType(typeof(Houses))]
         public IHttpActionResult DeleteHouses(int id)                                                     
         {
-            if (HousesBL.DelHouse(id))
+            if (housesBL.DelHouse(id))
                 return StatusCode(HttpStatusCode.NoContent);
             else
                 return StatusCode(HttpStatusCode.InternalServerError);

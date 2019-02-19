@@ -6,84 +6,73 @@ namespace ResourceAccountingSystem.DAL
 {
     public class HousesDAL
     {
-        public static List<Houses> GetHouses()
+        private HomeDataEntities db;
+
+        public HousesDAL()
         {
-            using (var db = new HomeDataEntities())
-            {
-                return new List<Houses>(db.Houses);
-            }
+            db = new HomeDataEntities();
         }
 
-        public static Houses AddHouse(Houses houses)
+        public List<Houses> GetHouses()
         {
-            using (var db = new HomeDataEntities())
-            {
-                //Добавляем новый дом
-                db.Houses.Add(houses);
-
-                try
-                {
-                    //Сохраняем изменения
-                    Save(db);
-                }
-                catch (DbUpdateException)
-                {
-                    return null;
-                }
-                return houses;
-            }
+            return new List<Houses>(db.Houses);
         }
 
-        public static Houses GetHouse(int id)
+        public Houses AddHouse(Houses houses)
         {
-            using (var db = new HomeDataEntities())
+            //Добавляем новый дом
+            db.Houses.Add(houses);
+
+            try
             {
-                return db.Houses.Find(id);
+                //Сохраняем изменения
+                Save(db);
             }
+            catch (DbUpdateException)
+            {
+                return null;
+            }
+            return houses;
         }
 
-        public static List<House> GetMaxHouseConsumer()
+        public Houses GetHouse(int id)
         {
-            using (var db = new HomeDataEntities())
-            {
-                return new List<House>(db.Database.SqlQuery<House>(@"SELECT * FROM [dbo].[GetId_MaxConsumerHouse]()"));
-            }
+            return db.Houses.Find(id);
         }
 
-        public static List<House> GetMinHouseConsumer()
+        public List<House> GetMaxHouseConsumer()
         {
-            using (var db = new HomeDataEntities())
-            {
-                return new List<House>(db.Database.SqlQuery<House>(@"SELECT * FROM [dbo].[GetId_MinConsumerHouse]()"));
-            }
+            return new List<House>(db.Database.SqlQuery<House>(@"SELECT * FROM [dbo].[GetId_MaxConsumerHouse]()"));
         }
 
-        public static void AddCounterAndInputIndicationForHouse(int id, int serialNumber, decimal indication)
+        public List<House> GetMinHouseConsumer()
         {
-            using (var db = new HomeDataEntities())
-            {
-                db.AddCounterOrInputIndicationOfIdHouse(id, serialNumber, indication);
-            }
+            return new List<House>(db.Database.SqlQuery<House>(@"SELECT * FROM [dbo].[GetId_MinConsumerHouse]()"));
         }
 
-        public static void InputIndicationByIdHouse(int id, decimal indication)
+        public void AddCounterAndInputIndicationForHouse(int id, int serialNumber, decimal indication)
         {
-            using (var db = new HomeDataEntities())
-            {
-                db.InputIndicationByIdHouse(id, indication);
-            }
+            db.AddCounterOrInputIndicationOfIdHouse(id, serialNumber, indication);
         }
 
-        public static void DeleteHouse(int id)
+        public void InputIndicationByIdHouse(int id, decimal indication)
         {
-            using (var db = new HomeDataEntities())
-            {
-                db.DeleteHouseWithCounter(id);
-            }
+            db.InputIndicationByIdHouse(id, indication);
         }
-        private static void Save(HomeDataEntities db)
+
+        public void DeleteHouse(int id)
+        {
+            db.DeleteHouseWithCounter(id);
+        }
+
+        private void Save(HomeDataEntities db)
         {
             db.SaveChanges();
+        }
+
+        ~ HousesDAL()
+        {
+            db.Dispose();
         }
     }
 }

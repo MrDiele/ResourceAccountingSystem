@@ -7,7 +7,7 @@ namespace ResourceAccountingSystem.Controllers
 {
     public class HouseCounterViewsController : ApiController
     {
-        //private HomeDataEntities db = new HomeDataEntities();
+        HouseCounterViewsBL houseCounterViewsBL = new HouseCounterViewsBL();
 
         /// <summary>
         /// Получить список из представления HouseCounterView.
@@ -16,7 +16,7 @@ namespace ResourceAccountingSystem.Controllers
         // GET: api/HouseCounterViews
         public List<HouseCounterView> GetHouseCounterView()
         {
-            return HouseCounterViewsBL.GetHouseCounterView();
+            return houseCounterViewsBL.GetHouseCounterView();
         }
 
         /// <summary>

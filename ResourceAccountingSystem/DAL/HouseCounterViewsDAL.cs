@@ -5,20 +5,26 @@ namespace ResourceAccountingSystem.DAL
 {
     public class HouseCounterViewsDAL
     {
-        public static List<HouseCounterView> GetHouseCounterView()
+        private HomeDataEntities db;
+
+        public HouseCounterViewsDAL()
         {
-            using (var db = new HomeDataEntities())
-            {
-                return new List<HouseCounterView>(db.HouseCounterView);
-            }
+            db = new HomeDataEntities();
         }
 
-        public static HouseCounterView GetHouseCounter(int IdHouse, string Address)
+        public  List<HouseCounterView> GetHouseCounterView()
         {
-            using (var db = new HomeDataEntities())
-            {
-                return db.HouseCounterView.Find(IdHouse, Address);
-            }
+            return new List<HouseCounterView>(db.HouseCounterView);
+        }
+
+        public  HouseCounterView GetHouseCounter(int IdHouse, string Address)
+        {
+            return db.HouseCounterView.Find(IdHouse, Address);
+        }
+
+        ~ HouseCounterViewsDAL()
+        {
+            db.Dispose();
         }
     }
 }

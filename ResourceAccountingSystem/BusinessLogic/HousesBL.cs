@@ -8,13 +8,20 @@ namespace ResourceAccountingSystem.BusinessLogic
 {
     public class HousesBL
     {
+        private HousesDAL housesDAL;
+
+        public HousesBL()
+        {
+            housesDAL = new HousesDAL();
+        }
+
         /// <summary>
         /// Получить список домов.
         /// </summary>
         /// <returns></returns>
-        public static List<Houses> GetHouses()
+        public List<Houses> GetHouses()
         {
-            return HousesDAL.GetHouses();
+            return housesDAL.GetHouses();
         }
 
         /// <summary>
@@ -22,17 +29,18 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// </summary>
         /// <param name="id">Id дома.</param>
         /// <returns></returns>
-        public static House GetHouse(int id)
+        public House GetHouse(int id)
         {
             try
             {
                 //проверяем существует ли дом в системе
-                Houses houses = HousesDAL.GetHouse(id);
+                Houses houses = housesDAL.GetHouse(id);
                 if (houses == null)
                 {
                     return null;
                 }
-                HouseCounterView houseCounterView = HouseCounterViewsDAL.GetHouseCounter(houses.IdHouse, houses.Address);
+                HouseCounterViewsDAL houseCounterViewsDAL = new HouseCounterViewsDAL();
+                HouseCounterView houseCounterView = houseCounterViewsDAL.GetHouseCounter(houses.IdHouse, houses.Address);
                 if (houseCounterView == null)
                 {
                     return null;
@@ -60,13 +68,13 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// Получить дом с максимальным потреблением.
         /// </summary>
         /// <returns></returns>
-        public static House GetMaxHouseConsumer()
+        public House GetMaxHouseConsumer()
         {
             try
             {
                 House answer = null;
                 //запускаем метод получающий информацию из базы
-                var houses = HousesDAL.GetMaxHouseConsumer();
+                var houses = housesDAL.GetMaxHouseConsumer();
                 foreach (var house in houses)
                 {
                     //формируем ответ
@@ -91,13 +99,13 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// Получить дом с минимальным потреблением.
         /// </summary>
         /// <returns></returns>
-        public static House GetMinHouseConsumer()
+        public House GetMinHouseConsumer()
         {
             try
             {
                 House answer = null;
                 //запускаем метод получающий информацию из базы
-                var houses = HousesDAL.GetMinHouseConsumer();
+                var houses = housesDAL.GetMinHouseConsumer();
                 foreach (var house in houses)
                 {
                     answer = new House
@@ -124,7 +132,7 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// <param name="id">Id дома.</param>
         /// <param name="houses">Обьект содержащий сведения о счётчике.</param>
         /// <returns></returns>
-        public static bool AddNewCounterInHouse(int id, Houses houses)
+        public bool AddNewCounterInHouse(int id, Houses houses)
         {
             try
             {
@@ -138,7 +146,7 @@ namespace ResourceAccountingSystem.BusinessLogic
                     //запускаем процедуру сохранения нового счётчика и привязки его к дому
                     foreach (Counters counter in houses.Counters)
                     {
-                        HousesDAL.AddCounterAndInputIndicationForHouse(id, counter.SerialNumber, counter.Indication);
+                        housesDAL.AddCounterAndInputIndicationForHouse(id, counter.SerialNumber, counter.Indication);
                     }
                 }
 
@@ -158,7 +166,7 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// </summary>
         /// <param name="houses">Обьект Houses.</param>
         /// <returns></returns>
-        public static bool InputIndicationByIdHouse(Houses houses)
+        public bool InputIndicationByIdHouse(Houses houses)
         {
             try
             {     
@@ -167,7 +175,7 @@ namespace ResourceAccountingSystem.BusinessLogic
                     //запускаем процедуру сохранения показаний по ID дома
                     foreach (Counters counter in houses.Counters)
                     {
-                        HousesDAL.InputIndicationByIdHouse(houses.IdHouse, counter.Indication);
+                        housesDAL.InputIndicationByIdHouse(houses.IdHouse, counter.Indication);
                     }
                 } 
                 return true;
@@ -186,9 +194,9 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// </summary>
         /// <param name="houses">Обьект Houses с информацией о новом доме.</param>
         /// <returns></returns>
-        public static Houses AddNewHouse(Houses houses)
+        public Houses AddNewHouse(Houses houses)
         {
-            return HousesDAL.AddHouse(houses);
+            return housesDAL.AddHouse(houses);
         }
 
         /// <summary>
@@ -196,10 +204,10 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// </summary>
         /// <param name="id">Id дома.</param>
         /// <returns></returns>
-        public static bool DelHouse(int id)
+        public bool DelHouse(int id)
         {
             //Проверяем существует ли дом
-            Houses houses = HousesDAL.GetHouse(id);
+            Houses houses = housesDAL.GetHouse(id);
             if (houses == null)
             {
                 return false;
@@ -207,7 +215,7 @@ namespace ResourceAccountingSystem.BusinessLogic
             try
             {
                 //запускаем процедуру удаления
-                HousesDAL.DeleteHouse(id);
+                housesDAL.DeleteHouse(id);
                 return true;
             }
             catch (Exception e)

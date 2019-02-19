@@ -6,13 +6,20 @@ namespace ResourceAccountingSystem.BusinessLogic
 {
     public class HouseCounterViewsBL
     {
+        private HouseCounterViewsDAL houseCounterViewsDAL;
+
+        public HouseCounterViewsBL()
+        {
+            houseCounterViewsDAL = new HouseCounterViewsDAL();
+        }
+
         /// <summary>
         /// Получает список из представления.
         /// </summary>
         /// <returns></returns>
-        public static List<HouseCounterView> GetHouseCounterView()
+        public List<HouseCounterView> GetHouseCounterView()
         {
-            return HouseCounterViewsDAL.GetHouseCounterView();
+            return houseCounterViewsDAL.GetHouseCounterView();
         }
     }
 }
