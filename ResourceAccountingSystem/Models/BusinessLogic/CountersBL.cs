@@ -34,9 +34,15 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// Получает список домов в системе.
         /// </summary>
         /// <returns></returns>
-        public List<Counters> GetHouses()
-        {             
-            return countersDAL.GetCounters();
+        public List<Counter> GetHouses()
+        {
+            List<Counter> counter = new List<Counter>();
+            var list = countersDAL.GetCounters();
+            foreach (Counters counters in list)
+            {
+                counter.Add(new Counter { IdCounter = counters.IdCounter, SerialNumber = counters.SerialNumber, Indication = counters.Indication});
+            }
+            return counter;
         }
 
         /// <summary>
@@ -44,9 +50,17 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// </summary>
         /// <param name="counters"></param>
         /// <returns></returns>
-        public Counters AddNewCounter(Counters counters)
+        public Counter AddNewCounter(Counter counter)
         {
-            return countersDAL.AddNewCounter(counters);
+            Counters counters = new Counters { IdCounter = counter.IdCounter,  SerialNumber = counter.SerialNumber, Indication = counter.Indication};
+            var _counters = countersDAL.AddNewCounter(counters);
+            Counter newCounter = new Counter
+            {
+                IdCounter = _counters.IdCounter,
+                SerialNumber = _counters.SerialNumber,
+                Indication = _counters.Indication
+            };
+            return newCounter;
         }
 
         /// <summary>
@@ -54,20 +68,20 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// </summary>
         /// <param name="counters"></param>
         /// <returns></returns>
-        public bool InputIndication(Counters counters)
+        public bool InputIndication(Counter counter)
         {
             //ищем счётчик по серийному номеру
-            List<Counters> cts = countersDAL.GetCounter(counters.SerialNumber);
+            List<Counters> cts = countersDAL.GetCounter(counter.SerialNumber);
                                                          
             //если нашли счётчик вносим изменения и сохраняем
             if (cts.Count != 0)
             {
-                foreach (Counters counter in cts)
+                foreach (Counters c in cts)
                 {
-                    if (counter.Indication < counters.Indication)
+                    if (c.Indication < counter.Indication)
                     {
-                        counter.Indication = counters.Indication;
-                        countersDAL.EditCounter(counter);
+                        c.Indication = counter.Indication;
+                        countersDAL.EditCounter(c);
                     }
                 }
                 return true;

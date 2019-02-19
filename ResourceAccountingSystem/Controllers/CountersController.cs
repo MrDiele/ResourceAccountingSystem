@@ -16,7 +16,7 @@ namespace ResourceAccountingSystem.Controllers
         /// </summary>
         /// <returns>Список счётчиков.</returns>
         // GET: api/Counters
-        public List<Counters> GetCounters()
+        public List<Counter> GetCounters()
         {
             return countersBL.GetHouses();
         }
@@ -27,16 +27,16 @@ namespace ResourceAccountingSystem.Controllers
         /// <param name="counters">Обьект Counters.</param>
         // POST: api/Houses
         [ResponseType(typeof(Houses))]
-        public IHttpActionResult PostCounters(Counters counters)
+        public IHttpActionResult PostCounters(Counter counter)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var newHouse = countersBL.AddNewCounter(counters);
+            var newHouse = countersBL.AddNewCounter(counter);
             if (newHouse != null)
-                return CreatedAtRoute("DefaultApi", new { id = counters.IdCounter }, counters);
+                return CreatedAtRoute("DefaultApi", new { id = newHouse.IdCounter }, newHouse);
             else
                 return Conflict();
         }
@@ -48,14 +48,14 @@ namespace ResourceAccountingSystem.Controllers
         /// <returns>Статус сообщения Http.</returns>
         // PUT: api/Counters
         [ResponseType(typeof(void))]
-        public IHttpActionResult PutCounters(Counters counters)
+        public IHttpActionResult PutCounters(Counter counter)
         {
             if (!ModelState.IsValid)
             {
                 return StatusCode(HttpStatusCode.BadRequest);
             }
 
-            if (countersBL.InputIndication(counters))
+            if (countersBL.InputIndication(counter))
                 return StatusCode(HttpStatusCode.NoContent);
             else
                 return StatusCode(HttpStatusCode.NotFound);

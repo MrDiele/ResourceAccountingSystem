@@ -114,7 +114,7 @@
             cell4.innerHTML = "Показания";
             call5.innerHTML = "Редактировать";
 
-            $.getJSON('api/HouseCounterViews')
+            $.getJSON('../api/HouseCounterViews')
                 .done(function (data) {
                     $.each(data, function (key, item) {
                         if (item.SerialNumber === null) {
@@ -149,7 +149,7 @@
             //}
             $('#FindHouse tr').remove();
             var id = $('#IdHouseWhenFind').val();
-            $.getJSON("api/Houses/" + id)
+            $.getJSON("../api/Houses/" + id)
                 .done(function (data) {
                     $('#fail_find').text("");
                     table.style.display = "inline-block";
@@ -180,7 +180,7 @@
             house.Address = $('#adressHouse').val();
             $.ajax({
                 type: 'POST',
-                url: "api/Houses",
+                url: "../api/Houses",
                 dataType: 'json',
                 data: house,
                 success: function (data, textStatus, xhr) {
@@ -211,7 +211,7 @@
         }
 
         function updateMinMax() {
-            $.getJSON('api/Houses/maxVal')
+            $.getJSON('../api/Houses/maxVal')
                 .done(function (data) {
                     var element = document.getElementById("max_House");
                     element.innerHTML = "Адрес дома с максимальным потребление воды: " + data.Address + ". Его потребление составляет: " + data.Indication;
@@ -220,7 +220,7 @@
                     var element = document.getElementById("max_House");
                     element.innerHTML = "Ошибка получения данных";
                 });
-            $.getJSON('api/Houses/minVal')
+            $.getJSON('../api/Houses/minVal')
                 .done(function (data) {
                     var element = document.getElementById("min_House");
                     element.innerHTML = "Адрес дома с минимальным потребление воды: " + data.Address + ". Его потребление составляет: " + data.Indication;

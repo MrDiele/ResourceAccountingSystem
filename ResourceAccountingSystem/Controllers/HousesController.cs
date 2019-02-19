@@ -16,7 +16,7 @@ namespace ResourceAccountingSystem.Controllers
         /// </summary>
         /// <returns>Список домов.</returns>
         // GET: api/Houses
-        public List<Houses> GetHouses()                                                                          
+        public List<House> GetHouses()                                                                          
         {
             return housesBL.GetHouses();
         }
@@ -27,7 +27,7 @@ namespace ResourceAccountingSystem.Controllers
         /// <param name="id">ID дома.</param>
         /// <returns>В случае успешного выполнения возвращает сообщение содержащее обьект House.</returns>
         // GET: api/Houses/5
-        [ResponseType(typeof(Houses))]
+        [ResponseType(typeof(House))]
         public IHttpActionResult GetHouses(int id)                                                
         {
             return Ok(housesBL.GetHouse(id));
@@ -63,14 +63,14 @@ namespace ResourceAccountingSystem.Controllers
         /// <returns>Статус сообщения Http.</returns>
         // PUT: api/Houses/5
         [ResponseType(typeof(void))]                                                                       
-        public IHttpActionResult PutHouses(int id, Houses houses)
+        public IHttpActionResult PutHouses(int id, Counter counter)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (housesBL.AddNewCounterInHouse(id, houses))
+            if (housesBL.AddNewCounterInHouse(id, counter))
                 return StatusCode(HttpStatusCode.NoContent);
             else
                 return StatusCode(HttpStatusCode.InternalServerError);
@@ -83,14 +83,14 @@ namespace ResourceAccountingSystem.Controllers
         /// <returns>Статус сообщения Http.</returns>
         [ResponseType(typeof(void))]
         [Route("api/Houses/inputIndication")]                                                                   
-        public IHttpActionResult PutHouseIndication(Houses houses)
+        public IHttpActionResult PutHouseIndication(House house)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (housesBL.InputIndicationByIdHouse(houses))
+            if (housesBL.InputIndicationByIdHouse(house))
                 return StatusCode(HttpStatusCode.NoContent);
             else
                 return StatusCode(HttpStatusCode.InternalServerError);
@@ -102,14 +102,14 @@ namespace ResourceAccountingSystem.Controllers
         /// <param name="houses">Обьект Houses.</param>
         // POST: api/Houses
         [ResponseType(typeof(Houses))]
-        public IHttpActionResult PostHouses(Houses houses)                                              
+        public IHttpActionResult PostHouses(House house)                                              
         {
             if (!ModelState.IsValid)                              
             {
                 return BadRequest(ModelState);
             }
 
-            var newHouse = housesBL.AddNewHouse(houses);
+            var newHouse = housesBL.AddNewHouse(house);
             if (newHouse != null)
                 return CreatedAtRoute("DefaultApi", new { id = newHouse.IdHouse }, newHouse);
             else

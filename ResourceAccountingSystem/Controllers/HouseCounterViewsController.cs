@@ -14,7 +14,7 @@ namespace ResourceAccountingSystem.Controllers
         /// </summary>
         /// <returns>Список обьектов.</returns>
         // GET: api/HouseCounterViews
-        public List<HouseCounterView> GetHouseCounterView()
+        public List<HouseCounter> GetHouseCounterView()
         {
             return houseCounterViewsBL.GetHouseCounterView();
         }

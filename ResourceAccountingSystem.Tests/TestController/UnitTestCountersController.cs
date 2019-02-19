@@ -37,9 +37,9 @@ namespace ResourceAccountingSystem.Tests
             Assert.AreEqual(3, result.Count);
         }
 
-        Counters GetDemoCounters()
+        Counter GetDemoCounters()
         {
-            return new Counters() { IdCounter = 3, SerialNumber= 12345, Indication = 5 };
+            return new Counter() { IdCounter = 3, SerialNumber= 12345, Indication = 5 };
         }
     }
 }

@@ -12,7 +12,7 @@
 function del(id, o) {
     $.ajax({
         type: 'DELETE',
-        url: "api/Houses/" + id,
+        url: "../api/Houses/" + id,
         dataType: 'json',
         success: function () {
             var p = o.parentNode.parentNode;
@@ -25,14 +25,14 @@ function del(id, o) {
 }   
 
 function addCounter() {
-    var house = new Object();
-    house.Counters = [{ SerialNumber: $('#SerialNumberWhenAddCounter').val(), Indication: $('#IndicatinWhenAddCounter').val() }];
-    house.IdHouse = $('#IdHouseWhenAddCounter').val();
+    var counter = new Object();
+    counter.SerialNumber = $('#SerialNumberWhenAddCounter').val();
+    counter.Indication = $('#IndicatinWhenAddCounter').val();                                          
     $.ajax({
         type: 'PUT',
-        url: "/api/Houses/" + $('#IdHouseWhenAddCounter').val(),
+        url: "../api/Houses/" + $('#IdHouseWhenAddCounter').val(),
         dataType: 'json',
-        data: house,
+        data: counter,
         success: function (data, textStatus, xhr) {
             updateDateOnPage();
         },
@@ -48,7 +48,7 @@ function InputIndicationBySerialNumber() {
     counter.Indication = $('#Counter_Indication').val();
     $.ajax({
         type: 'PUT',
-        url: "api/Counters/",
+        url: "../api/Counters/",
         dataType: 'json',
         data: counter,
         success: function (data, textStatus, xhr) {
@@ -64,11 +64,11 @@ function InputIndicationBySerialNumber() {
 
 function InputIndicationByIdHouse() {
     var house = new Object();
-    house.Counters = [{ Indication: $('#House_Indication').val() }];
-    house.IdHouse = $('#House_IdHouse').val();
+    house.Indication = $('#House_Indication').val();
+    house.IdHouse = $('#House_IdHouse').val();      
     $.ajax({
         type: 'PUT',
-        url: "api/Houses/inputIndication",
+        url: "../api/Houses/inputIndication",
         dataType: 'json',
         data: house,
         success: function (data, textStatus, xhr) {

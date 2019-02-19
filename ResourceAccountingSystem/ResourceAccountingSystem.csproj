@@ -139,6 +139,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\BaseObject\Counter.cs" />
     <Compile Include="Models\Counters.cs">
       <DependentUpon>HomeModel.tt</DependentUpon>
     </Compile>
@@ -157,7 +158,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>HomeModel.edmx</DependentUpon>
     </Compile>
-    <Compile Include="Models\House.cs" />
+    <Compile Include="Models\BaseObject\House.cs" />
+    <Compile Include="Models\BaseObject\HouseCounter.cs" />
     <Compile Include="Models\HouseCounterView.cs">
       <DependentUpon>HomeModel.tt</DependentUpon>
     </Compile>

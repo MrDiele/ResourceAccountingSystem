@@ -27,9 +27,15 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// Получить список домов.
         /// </summary>
         /// <returns></returns>
-        public List<Houses> GetHouses()
+        public List<House> GetHouses()
         {
-            return housesDAL.GetHouses();
+            List<House> house = new List<House>();
+            var list = housesDAL.GetHouses();
+            foreach (Houses houses in list)
+            {
+                house.Add(new House { IdHouse = houses.IdHouse, Address = houses.Address });
+            }
+            return house;
         }
 
         /// <summary>
@@ -141,24 +147,11 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// <param name="id">Id дома.</param>
         /// <param name="houses">Обьект содержащий сведения о счётчике.</param>
         /// <returns></returns>
-        public bool AddNewCounterInHouse(int id, Houses houses)
+        public bool AddNewCounterInHouse(int id, Counter counter)                   
         {
             try
             {
-                if (id != houses.IdHouse)
-                {
-                    return false;
-                }
-
-                if (houses.Counters.Count != 0)
-                {
-                    //запускаем процедуру сохранения нового счётчика и привязки его к дому
-                    foreach (Counters counter in houses.Counters)
-                    {
-                        housesDAL.AddCounterAndInputIndicationForHouse(id, counter.SerialNumber, counter.Indication);
-                    }
-                }
-
+                housesDAL.AddCounterAndInputIndicationForHouse(id, counter.SerialNumber, counter.Indication);
                 return true;
             }
             catch (Exception e)
@@ -175,18 +168,11 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// </summary>
         /// <param name="houses">Обьект Houses.</param>
         /// <returns></returns>
-        public bool InputIndicationByIdHouse(Houses houses)
+        public bool InputIndicationByIdHouse(House house)
         {
             try
-            {     
-                if (houses.Counters.Count != 0)
-                {
-                    //запускаем процедуру сохранения показаний по ID дома
-                    foreach (Counters counter in houses.Counters)
-                    {
-                        housesDAL.InputIndicationByIdHouse(houses.IdHouse, counter.Indication);
-                    }
-                } 
+            {                 
+                housesDAL.InputIndicationByIdHouse(house.IdHouse, house.Indication);
                 return true;
             }
             catch (Exception e)
@@ -203,9 +189,16 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// </summary>
         /// <param name="houses">Обьект Houses с информацией о новом доме.</param>
         /// <returns></returns>
-        public Houses AddNewHouse(Houses houses)
+        public House AddNewHouse(House house)
         {
-            return housesDAL.AddHouse(houses);
+            Houses houses = new Houses { IdHouse = house.IdHouse, Address = house.Address, Counters = null };
+            var _houses = housesDAL.AddHouse(houses);
+            House newHouse = new House
+            {
+                IdHouse = _houses.IdHouse,
+                Address = _houses.Address
+            };
+            return newHouse;
         }
 
         /// <summary>

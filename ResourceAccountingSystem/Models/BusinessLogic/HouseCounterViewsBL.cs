@@ -25,9 +25,15 @@ namespace ResourceAccountingSystem.BusinessLogic
         /// Получает список из представления.
         /// </summary>
         /// <returns></returns>
-        public List<HouseCounterView> GetHouseCounterView()
+        public List<HouseCounter> GetHouseCounterView()
         {
-            return houseCounterViewsDAL.GetHouseCounterView();
+            List<HouseCounter> houseCounter = new List<HouseCounter>();
+            var list = houseCounterViewsDAL.GetHouseCounterView();
+            foreach (HouseCounterView hcv in list)
+            {
+                houseCounter.Add(new HouseCounter { IdHouse = hcv.IdHouse, Address= hcv.Address, SerialNumber = hcv.SerialNumber, Indication = hcv.Indication});
+            }
+            return houseCounter;
         }
         #endregion
     }
